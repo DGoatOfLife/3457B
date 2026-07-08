@@ -35,7 +35,6 @@ void odom_constants(){
   chassis.boomerang_lead = .5;
   chassis.drive_min_voltage = 0;
 }
-// not really swp
 void Blue_solo_awp() {
   Scoring.spin(reverse, 2, percent);
   chassis.drive_distance(4.72648);
