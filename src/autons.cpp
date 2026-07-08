@@ -35,27 +35,31 @@ void odom_constants(){
   chassis.boomerang_lead = .5;
   chassis.drive_min_voltage = 0;
 }
-/*
+
 void Blue_solo_awp() {
+  Scoring.spin(reverse, 2, percent);
+  chassis.drive_distance(4.72648);
+  chassis.drive_distance(-5);
+  chassis.drive_distance(4.6543);
+  chassis.drive_distance(-5);  
   chassis.right_swing_to_angle(-60);
-  chassis.drive_distance(10);
-  Scoring.spin(forward, 30, percent);
-  wait(150, msec);
+  chassis.drive_distance(7.82);
+  Scoring.spin(forward, 60, percent);
+  wait(905, msec);
   Scoring.stop(coast);
-//  chassis.drive_distance(-3);
-  chassis.drive_distance(-7.5);
+  chassis.drive_distance(-8.25);
   chassis.right_swing_to_angle(0);
   chassis.drive_distance(17);
   chassis.right_swing_to_angle(-60.25);
   Lift.spin(forward, 60, percent);
-  chassis.drive_distance(7);
-  wait(345, msec);
+  chassis.drive_distance(11);
+  wait(245, msec);
   Lift.stop(hold);
-  Lift.spin(reverse, 75, percent);
+  Lift.spin(reverse, 85, percent);
   Scoring.spin(reverse, 100, percent);
-  wait(665, msec);
+  wait(725, msec);
   Scoring.stop(coast);
-  chassis.left_swing_to_angle(-145);
+  chassis.left_swing_to_angle(-141.5);
   Lift.spin(forward, 35, percent);
   wait(250, msec);
   Lift.stop(hold);
@@ -67,11 +71,6 @@ void Blue_solo_awp() {
   Lift.spin(forward, 65, percent);
   wait(225, msec);
   Lift.stop(hold);
-}
-*/
-
-void Blue_solo_awp(){
-  
 }
 
 void Red_solo_awp(){
