@@ -1,10 +1,14 @@
 using namespace vex;
+#include "JAR-Template/PID.h"
 
 extern brain Brain;
 extern motor_group Lift;
 
 //To set up a motor called LeftFront here, you'd use
 //extern motor LeftFront;
+extern rotation LiftRot;
+extern PID liftPID;
+
 
 //Add your devices below, and don't forget to do the same in robot-config.cpp:
 

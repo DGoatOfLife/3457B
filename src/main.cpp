@@ -23,7 +23,25 @@ motor_group Lift = motor_group(LiftMotorA, LiftMotorB);
 motor ScoringMotorA = motor(PORT21, ratio6_1, true);
 motor ScoringMotorB = motor(PORT19, ratio6_1, false);
 motor_group Scoring = motor_group(ScoringMotorA, ScoringMotorB);
-motor Toggle = motor(PORT16, ratio18_1, false);
+
+double HOME = 0.0;
+// Intake Ready Pos
+double A = 0.18;
+// Non-Middle goals.
+double B = 0.24;
+double C = 1.01;
+double D = 0.62;
+// Middle goal.
+double E = 0.39;
+double F = 0.77;
+//Matchloading pos
+double G = 0.1;
+bool matchloading = false;
+
+// 0 - "Home" (fully down)
+// 1 through 4
+bool useTarget = false;
+double liftTarget = HOME;
 
 Drive chassis(
 
@@ -141,7 +159,13 @@ void autonomous(void) {
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
+void setLiftTarget(double target) {
+  liftTarget = target;
+}
+
 void usercontrol(void) {
+  LiftRot.resetPosition();
+
   // User control code here, inside the loop
   vexcodeInit();
   default_constants();
@@ -150,13 +174,108 @@ void usercontrol(void) {
     // Each time through the loop your program should update motor + servo
     // values based on feedback from the joysticks.
 
-    if (Controller1.ButtonL1.pressing()) {
-      Lift.spin(forward, 45, percent);
-    } else if (Controller1.ButtonL2.pressing()) {
-      Lift.spin(reverse, 100, percent);
+    // if (Controller1.ButtonL1.pressing()) {
+    //   Lift.spin(forward, 45, percent); // UP
+    // } else if (Controller1.ButtonL2.pressing()) {
+    //   Lift.spin(reverse, 100, percent); // DOWN
+    // } else {
+    //   Lift.stop(hold);
+    // }
+
+    // LIFT dynamic control
+    double currentPos = LiftRot.position(rev);
+
+    double liftError = currentPos - liftTarget;
+    double liftPower = -liftPID.compute(liftError) * 100;//* 30
+
+    Brain.Screen.clearScreen();
+    Brain.Screen.setCursor(1,1);
+    Brain.Screen.print("Lift Power: %f", liftPower);
+    Brain.Screen.setCursor(2,1);
+    Brain.Screen.print("currentPos: %f", currentPos);
+    Brain.Screen.setCursor(3,1);
+    Brain.Screen.print("liftTarget:%f",liftTarget);
+
+    // double liftDir = (liftError > 0) ? -1 : 1;
+    // liftError = abs(liftError);
+
+    // double liftPower;
+
+    // if (liftError > 5) {
+    //   liftPower = 75;
+    // }
+    // if (5 >= liftError > 2) {
+    //   liftPower = 42.5;
+    // }
+    // if (2 >= liftError > 1) {
+    //   liftPower = 22.5;
+    // }
+    // if (1 >= liftError > 0.5) {
+    //   liftPower = 15;
+    // }
+    
+
+    // Adjust LIFT TARGETS
+    Controller1.ButtonA.pressed([] {
+      useTarget=true;
+      setLiftTarget(A);
+    });
+    Controller1.ButtonB.pressed([] {
+      useTarget=true;
+      setLiftTarget(B);
+    });
+    Controller1.ButtonX.pressed([] {
+      useTarget=true;
+      setLiftTarget(C);
+    });
+    Controller1.ButtonY.pressed([] {
+      useTarget=true;
+      setLiftTarget(D);
+    });
+    Controller1.ButtonUp.pressed([] {
+      useTarget=true;
+      setLiftTarget(E);
+    });
+    Controller1.ButtonDown.pressed([] {
+      useTarget=true;
+      setLiftTarget(F);
+    });
+    if (Controller1.ButtonL2.pressing()) {
+      Lift.spin(reverse, 85, percent);
+      useTarget=false;
+    } else if (Controller1.ButtonL1.pressing()) {
+      Lift.spin(forward, 65, percent);
+      useTarget=false;
     } else {
       Lift.stop(hold);
     }
+    // Controller1.ButtonDown.pressed([]{
+    //   if (matchloading == false){
+    //     matchloading = true;
+    //   } else if (matchloading == true) {
+    //     matchloading=false;
+    //   }
+    // });
+    // if (matchloading==true){
+    //   useTarget=true;
+    //   setLiftTarget(G);
+    //   Scoring.spin(reverse, 10, percent);
+    //   chassis.drive_distance(3, chassis.get_absolute_heading(), 70, 127);
+    //   wait(300, msec);
+    //   Scoring.spin(reverse, 85, percent); 
+    // }
+
+    if(useTarget){
+            // Lift.spin(forward, liftPower * liftDir, percent);
+          if(liftPower<5&&liftPower>-5){
+            Lift.stop(hold);
+          }else{
+      Lift.spin(forward, liftPower, percent);
+          }
+    }
+    Controller1.ButtonLeft.pressed([] {
+      LiftRot.resetPosition();
+    });
 
     // check the ButtonR1/ButtonR2 status to control Scoring
     if (Controller1.ButtonR1.pressing()) {
@@ -164,17 +283,17 @@ void usercontrol(void) {
     } else if (Controller1.ButtonR2.pressing()) {
       Scoring.spin(reverse,100, percent);
     } else {
-      Scoring.spin(reverse,15, percent);
+      Scoring.spin(reverse,8.5, percent);
     }
 
-    // check the ButtonX/ButtonB status to control Toggle
-    if (Controller1.ButtonX.pressing()) {
-      Toggle.spin(forward, 100, percent);
-    } else if (Controller1.ButtonB.pressing()) {
-      Toggle.spin(reverse, 100, percent);
-    } else {
-      Toggle.stop();
-    }
+    // // check the ButtonX/ButtonB status to control Toggle
+    // if (Controller1.ButtonX.pressing()) {
+    //   Toggle.spin(forward, 100, percent);
+    // } else if (Controller1.ButtonB.pressing()) {
+    //   Toggle.spin(reverse, 100, percent);
+    // } else {
+    //   Toggle.stop();
+    // }
 
     //Replace this line with chassis.control_tank(); for tank drive 
     //or chassis.control_holonomic(); for holo drive.
