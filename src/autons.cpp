@@ -89,7 +89,30 @@ void Blue_Right(){
 }
 
 void Blue_Left(){
-
+  chassis.set_coordinates(0, 0, 133.34);
+  useTarget = true;
+  Lift.spin(reverse, 30, percent);
+  chassis.drive_distance(6.8365);
+  LiftRot.resetPosition();
+  Lift.stop(hold);
+  Scoring.spin(forward, 75, percent);
+  Lift.spin(forward, 40, percent);
+  wait(525, msec);
+  Lift.spin(reverse, 20, percent);
+  setLiftTarget(Auton);
+  Scoring.stop(coast);
+  chassis.drive_distance(-3);
+  Lift.stop(hold);
+  setLiftTarget(HOME);
+  chassis.right_swing_to_angle(200);
+  chassis.drive_distance(-4.4);
+  chassis.left_swing_to_angle(90);
+  chassis.drive_distance(-3.1);
+  chassis.drive_distance(8.8);
+  chassis.drive_distance(-8.8);
+  chassis.drive_distance(8.8);
+  chassis.drive_distance(-8.8);
+  chassis.drive_distance(24);
 }
 
 void Red_Right(){

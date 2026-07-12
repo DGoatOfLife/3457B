@@ -37,7 +37,7 @@ double F = 0.77;
 //Matchloading pos
 double G = 0.1;
 bool matchloading = false;
-
+double Auton = 0.31;
 // 0 - "Home" (fully down)
 // 1 through 4
 bool useTarget = false;
@@ -132,10 +132,29 @@ PORT3,     -PORT4,
  * be more descriptive, if you like.
  */
 
+void liftUpdateLoop() {
+  while (true) {
+    double currentPos = LiftRot.position(rev);
+    double liftError = currentPos - liftTarget;
+    double liftPower = -liftPID.compute(liftError) * 100;
+    if (useTarget) {
+      if (liftPower < 5 && liftPower > -5) {
+        Lift.stop(hold);
+      } else {
+        Lift.spin(forward, liftPower, percent);
+      }
+    }
+
+    wait(20, msec);
+  }
+}
+
 void pre_auton() {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
   default_constants();
+
+  thread liftThread = thread(liftUpdateLoop);
 }
 
 /**
@@ -146,7 +165,7 @@ void pre_auton() {
  */
 
 void autonomous(void) {
-  Blue_solo_awp();
+  Blue_Left();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -182,19 +201,19 @@ void usercontrol(void) {
     //   Lift.stop(hold);
     // }
 
-    // LIFT dynamic control
-    double currentPos = LiftRot.position(rev);
+    // // LIFT dynamic control
+    // double currentPos = LiftRot.position(rev);
 
-    double liftError = currentPos - liftTarget;
-    double liftPower = -liftPID.compute(liftError) * 100;//* 30
+    // double liftError = currentPos - liftTarget;
+    // double liftPower = -liftPID.compute(liftError) * 100;//* 30
 
-    Brain.Screen.clearScreen();
-    Brain.Screen.setCursor(1,1);
-    Brain.Screen.print("Lift Power: %f", liftPower);
-    Brain.Screen.setCursor(2,1);
-    Brain.Screen.print("currentPos: %f", currentPos);
-    Brain.Screen.setCursor(3,1);
-    Brain.Screen.print("liftTarget:%f",liftTarget);
+    // Brain.Screen.clearScreen();
+    // Brain.Screen.setCursor(1,1);
+    // Brain.Screen.print("Lift Power: %f", liftPower);
+    // Brain.Screen.setCursor(2,1);
+    // Brain.Screen.print("currentPos: %f", currentPos);
+    // Brain.Screen.setCursor(3,1);
+    // Brain.Screen.print("liftTarget:%f",liftTarget);
 
     // double liftDir = (liftError > 0) ? -1 : 1;
     // liftError = abs(liftError);
@@ -247,7 +266,8 @@ void usercontrol(void) {
       Lift.spin(forward, 65, percent);
       useTarget=false;
     } else {
-      Lift.stop(hold);
+      if (!useTarget)
+        Lift.stop(hold);
     }
     // Controller1.ButtonDown.pressed([]{
     //   if (matchloading == false){
@@ -265,14 +285,14 @@ void usercontrol(void) {
     //   Scoring.spin(reverse, 85, percent); 
     // }
 
-    if(useTarget){
-            // Lift.spin(forward, liftPower * liftDir, percent);
-          if(liftPower<5&&liftPower>-5){
-            Lift.stop(hold);
-          }else{
-      Lift.spin(forward, liftPower, percent);
-          }
-    }
+    // if(useTarget){
+    //         // Lift.spin(forward, liftPower * liftDir, percent);
+    //       if(liftPower<5&&liftPower>-5){
+    //         Lift.stop(hold);
+    //       }else{
+    //   Lift.spin(forward, liftPower, percent);
+    //       }
+    // }
     Controller1.ButtonLeft.pressed([] {
       LiftRot.resetPosition();
     });
