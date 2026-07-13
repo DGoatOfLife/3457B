@@ -2,14 +2,9 @@ using namespace vex;
 #include "JAR-Template/PID.h"
 
 extern brain Brain;
-extern motor_group Lift;
 
 // To set up a motor called LeftFront here, you'd use
 // extern motor LeftFront;
-extern rotation LiftRot;
-extern double liftTarget;
-extern double target;
-extern PID liftPID;
 extern bool useTarget;
 extern double HOME;
 // Intake Ready Pos

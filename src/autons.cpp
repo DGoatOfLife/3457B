@@ -1,4 +1,5 @@
 #include "vex.h"
+#include "Lift.h"
 
 /**
  * Resets the constants for auton movement.
@@ -35,166 +36,178 @@ void odom_constants(){
   chassis.boomerang_lead = .5;
   chassis.drive_min_voltage = 0;
 }
-void Blue_solo_awp() {
-  Scoring.spin(reverse, 2, percent);
-  chassis.drive_distance(4.72648);
-  chassis.drive_distance(-5);
-  chassis.drive_distance(4.6543);
-  chassis.drive_distance(-5);  
-  chassis.right_swing_to_angle(-60);
-  chassis.drive_distance(7.82);
-  Scoring.spin(forward, 60, percent);
-  wait(905, msec);
-  Scoring.stop(coast);
-  chassis.drive_distance(-8.25);
-  chassis.right_swing_to_angle(0);
-  chassis.drive_distance(17);
-  chassis.right_swing_to_angle(-60.25);
-  Lift.spin(forward, 60, percent);
-  chassis.drive_distance(11);
-  wait(245, msec);
-  Lift.stop(hold);
-  Lift.spin(reverse, 85, percent);
-  Scoring.spin(reverse, 100, percent);
-  wait(725, msec);
-  Scoring.stop(coast);
-  chassis.left_swing_to_angle(-141.5);
-  Lift.spin(forward, 35, percent);
-  wait(250, msec);
-  Lift.stop(hold);
-  chassis.drive_distance(11.5);
-  wait(350 ,msec);
-  Lift.spin(reverse, 85, percent);
-  wait(225, msec);
-  Scoring.spin(forward, 45, percent);
-  Lift.spin(forward, 65, percent);
-  wait(225, msec);
-  Lift.stop(hold);
+
+void setLiftTarget(double target) {
+  Lift::setLiftTarget(target);
 }
 
-void Red_solo_awp(){
-
-}
-
-/**
- * The expected behavior is to return to the start position.
- */
-
-void Blue_Right(){
-  chassis.right_swing_to_angle(-56);
-  chassis.drive_distance(6.69);
-  Scoring.spin(forward, 30, percent);
-  wait(650, msec);
-  Scoring.stop(coast);
-}
-
-void Blue_Left(){
+void Blue_Left() {
   chassis.set_coordinates(0, 0, 133.34);
-  useTarget = true;
-  Lift.spin(reverse, 30, percent);
-  chassis.drive_distance(6.8365);
-  LiftRot.resetPosition();
-  Lift.stop(hold);
+  Lift::spin(reverse, 30, percent);
+  chassis.drive_distance(5.8865);
+  Lift::resetPosition();
+  Lift::stop(hold);
   Scoring.spin(forward, 75, percent);
-  Lift.spin(forward, 40, percent);
-  wait(525, msec);
-  Lift.spin(reverse, 20, percent);
-  setLiftTarget(Auton);
+  wait(100, msec);
+  setLiftTarget(Lift::D);
+  wait(425, msec);
   Scoring.stop(coast);
-  chassis.drive_distance(-3);
-  Lift.stop(hold);
-  setLiftTarget(HOME);
+  chassis.drive_distance(-2.375);
+  setLiftTarget(Lift::HOME);
   chassis.right_swing_to_angle(200);
-  chassis.drive_distance(-4.4);
+  chassis.drive_distance(-2.4);
   chassis.left_swing_to_angle(90);
-  chassis.drive_distance(-3.1);
-  chassis.drive_distance(8.8);
-  chassis.drive_distance(-8.8);
-  chassis.drive_distance(8.8);
-  chassis.drive_distance(-8.8);
-  chassis.drive_distance(24);
+  // chassis.drive_distance(-3.1);
+  chassis.drive_distance(8.7);
+  chassis.drive_distance(-11.438);
+  chassis.drive_distance(11.438);
+  chassis.drive_distance(-11.438);
+  chassis.drive_distance(18);
+  chassis.left_swing_to_angle(158);
+  setLiftTarget(Lift::D);
+  chassis.drive_distance(14.5);
+  Scoring.spin(reverse, 65, percent);
+  setLiftTarget(Lift::A);
+  wait(950, msec);
+  Scoring.stop(coast);
 }
 
-void Red_Right(){
+// ------------------------------------
 
-}
 
-/**
- * The expected behavior is to return to the start angle, after making a complete turn.
- */
+// void Blue_solo_awp() {
+//   Scoring.spin(reverse, 2, percent);
+//   chassis.drive_distance(4.72648);
+//   chassis.drive_distance(-5);
+//   chassis.drive_distance(4.6543);
+//   chassis.drive_distance(-5);  
+//   chassis.right_swing_to_angle(-60);
+//   chassis.drive_distance(7.82);
+//   Scoring.spin(forward, 60, percent);
+//   wait(905, msec);
+//   Scoring.stop(coast);
+//   chassis.drive_distance(-8.25);
+//   chassis.right_swing_to_angle(0);
+//   chassis.drive_distance(17);
+//   chassis.right_swing_to_angle(-60.25);
+//   Lift.spin(forward, 60, percent);
+//   chassis.drive_distance(11);
+//   wait(245, msec);
+//   Lift.stop(hold);
+//   Lift.spin(reverse, 85, percent);
+//   Scoring.spin(reverse, 100, percent);
+//   wait(725, msec);
+//   Scoring.stop(coast);
+//   chassis.left_swing_to_angle(-141.5);
+//   Lift.spin(forward, 35, percent);
+//   wait(250, msec);
+//   Lift.stop(hold);
+//   chassis.drive_distance(11.5);
+//   wait(350 ,msec);
+//   Lift.spin(reverse, 85, percent);
+//   wait(225, msec);
+//   Scoring.spin(forward, 45, percent);
+//   Lift.spin(forward, 65, percent);
+//   wait(225, msec);
+//   Lift.stop(hold);
+// }
 
-void turn_test(){
-  chassis.turn_to_angle(5);
-  chassis.turn_to_angle(30);
-  chassis.turn_to_angle(90);
-  chassis.turn_to_angle(225);
-  chassis.turn_to_angle(0);
-}
+// void Red_solo_awp(){
 
-/**
- * Should swing in a fun S shape.
- */
+// }
 
-void swing_test(){
-  chassis.left_swing_to_angle(90);
-  chassis.right_swing_to_angle(0);
-}
+// /**
+//  * The expected behavior is to return to the start position.
+//  */
 
-/**
- * A little of this, a little of that; it should end roughly where it started.
- */
+// void Blue_Right(){
+//   chassis.right_swing_to_angle(-56);
+//   chassis.drive_distance(6.69);
+//   Scoring.spin(forward, 30, percent);
+//   wait(650, msec);
+//   Scoring.stop(coast);
+// }
 
-void full_test(){
-  chassis.drive_distance(24);
-  chassis.turn_to_angle(-45);
-  chassis.drive_distance(-36);
-  chassis.right_swing_to_angle(-90);
-  chassis.drive_distance(24);
-  chassis.turn_to_angle(0);
-}
+// void Red_Right(){
 
-/**
- * Doesn't drive the robot, but just prints coordinates to the Brain screen 
- * so you can check if they are accurate to life. Push the robot around and
- * see if the coordinates increase like you'd expect.
- */
+// }
 
-void odom_test(){
-  chassis.set_coordinates(0, 0, 0);
-  while(1){
-    Brain.Screen.clearScreen();
-    Brain.Screen.printAt(5,20, "X: %f", chassis.get_X_position());
-    Brain.Screen.printAt(5,40, "Y: %f", chassis.get_Y_position());
-    Brain.Screen.printAt(5,60, "Heading: %f", chassis.get_absolute_heading());
-    Brain.Screen.printAt(5,80, "ForwardTracker: %f", chassis.get_ForwardTracker_position());
-    Brain.Screen.printAt(5,100, "SidewaysTracker: %f", chassis.get_SidewaysTracker_position());
-  }
-}
+// /**
+//  * The expected behavior is to return to the start angle, after making a complete turn.
+//  */
 
-/**
- * Should end in the same place it began, but the second movement
- * will be curved while the first is straight.
- */
+// void turn_test(){
+//   chassis.turn_to_angle(5);
+//   chassis.turn_to_angle(30);
+//   chassis.turn_to_angle(90);
+//   chassis.turn_to_angle(225);
+//   chassis.turn_to_angle(0);
+// }
 
-void tank_odom_test(){
-  odom_constants();
-  chassis.set_coordinates(0, 0, 0);
-  chassis.turn_to_point(24, 24);
-  chassis.drive_to_point(24,24);
-  chassis.drive_to_point(0,0);
-  chassis.turn_to_angle(0);
-}
+// /**
+//  * Should swing in a fun S shape.
+//  */
 
-/**
- * Drives in a square while making a full turn in the process. Should
- * end where it started.
- */
+// void swing_test(){
+//   chassis.left_swing_to_angle(90);
+//   chassis.right_swing_to_angle(0);
+// }
 
-void holonomic_odom_test(){
-  odom_constants();
-  chassis.set_coordinates(0, 0, 0);
-  chassis.holonomic_drive_to_pose(0, 18, 90);
-  chassis.holonomic_drive_to_pose(18, 0, 180);
-  chassis.holonomic_drive_to_pose(0, 18, 270);
-  chassis.holonomic_drive_to_pose(0, 0, 0);
-}
+// /**
+//  * A little of this, a little of that; it should end roughly where it started.
+//  */
+
+// void full_test(){
+//   chassis.drive_distance(24);
+//   chassis.turn_to_angle(-45);
+//   chassis.drive_distance(-36);
+//   chassis.right_swing_to_angle(-90);
+//   chassis.drive_distance(24);
+//   chassis.turn_to_angle(0);
+// }
+
+// /**
+//  * Doesn't drive the robot, but just prints coordinates to the Brain screen 
+//  * so you can check if they are accurate to life. Push the robot around and
+//  * see if the coordinates increase like you'd expect.
+//  */
+
+// void odom_test(){
+//   chassis.set_coordinates(0, 0, 0);
+//   while(1){
+//     Brain.Screen.clearScreen();
+//     Brain.Screen.printAt(5,20, "X: %f", chassis.get_X_position());
+//     Brain.Screen.printAt(5,40, "Y: %f", chassis.get_Y_position());
+//     Brain.Screen.printAt(5,60, "Heading: %f", chassis.get_absolute_heading());
+//     Brain.Screen.printAt(5,80, "ForwardTracker: %f", chassis.get_ForwardTracker_position());
+//     Brain.Screen.printAt(5,100, "SidewaysTracker: %f", chassis.get_SidewaysTracker_position());
+//   }
+// }
+
+// /**
+//  * Should end in the same place it began, but the second movement
+//  * will be curved while the first is straight.
+//  */
+
+// void tank_odom_test(){
+//   odom_constants();
+//   chassis.set_coordinates(0, 0, 0);
+//   chassis.turn_to_point(24, 24);
+//   chassis.drive_to_point(24,24);
+//   chassis.drive_to_point(0,0);
+//   chassis.turn_to_angle(0);
+// }
+
+// /**
+//  * Drives in a square while making a full turn in the process. Should
+//  * end where it started.
+//  */
+
+// void holonomic_odom_test(){
+//   odom_constants();
+//   chassis.set_coordinates(0, 0, 0);
+//   chassis.holonomic_drive_to_pose(0, 18, 90);
+//   chassis.holonomic_drive_to_pose(18, 0, 180);
+//   chassis.holonomic_drive_to_pose(0, 18, 270);
+//   chassis.holonomic_drive_to_pose(0, 0, 0);
+// }

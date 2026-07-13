@@ -1,4 +1,6 @@
 #include "vex.h"
+#include "Lift.h"
+
 using namespace vex;
 competition Competition;
 
@@ -17,31 +19,12 @@ motor leftMotorB = motor(PORT11, ratio6_1, true);
 motor rightMotorA = motor(PORT3, ratio6_1, true);
 motor rightMotorB = motor(PORT20, ratio6_1, false);
 
-motor LiftMotorA = motor(PORT13, ratio36_1, true);
-motor LiftMotorB = motor(PORT1, ratio36_1, false);
-motor_group Lift = motor_group(LiftMotorA, LiftMotorB);
 motor ScoringMotorA = motor(PORT21, ratio6_1, true);
 motor ScoringMotorB = motor(PORT19, ratio6_1, false);
 motor_group Scoring = motor_group(ScoringMotorA, ScoringMotorB);
 
-double HOME = 0.0;
-// Intake Ready Pos
-double A = 0.18;
-// Non-Middle goals.
-double B = 0.24;
-double C = 1.01;
-double D = 0.62;
-// Middle goal.
-double E = 0.39;
-double F = 0.77;
-//Matchloading pos
-double G = 0.1;
+// TODO: Fix.
 bool matchloading = false;
-double Auton = 0.31;
-// 0 - "Home" (fully down)
-// 1 through 4
-bool useTarget = false;
-double liftTarget = HOME;
 
 Drive chassis(
 
@@ -132,29 +115,10 @@ PORT3,     -PORT4,
  * be more descriptive, if you like.
  */
 
-void liftUpdateLoop() {
-  while (true) {
-    double currentPos = LiftRot.position(rev);
-    double liftError = currentPos - liftTarget;
-    double liftPower = -liftPID.compute(liftError) * 100;
-    if (useTarget) {
-      if (liftPower < 5 && liftPower > -5) {
-        Lift.stop(hold);
-      } else {
-        Lift.spin(forward, liftPower, percent);
-      }
-    }
-
-    wait(20, msec);
-  }
-}
-
 void pre_auton() {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
   default_constants();
-
-  thread liftThread = thread(liftUpdateLoop);
 }
 
 /**
@@ -178,12 +142,8 @@ void autonomous(void) {
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
-void setLiftTarget(double target) {
-  liftTarget = target;
-}
-
 void usercontrol(void) {
-  LiftRot.resetPosition();
+  // LiftRot.resetPosition();
 
   // User control code here, inside the loop
   vexcodeInit();
@@ -232,43 +192,32 @@ void usercontrol(void) {
     // if (1 >= liftError > 0.5) {
     //   liftPower = 15;
     // }
-    
 
     // Adjust LIFT TARGETS
-    Controller1.ButtonA.pressed([] {
-      useTarget=true;
-      setLiftTarget(A);
+    Controller1.ButtonA.pressed([]() {
+      Lift::setLiftTarget(Lift::A);
     });
-    Controller1.ButtonB.pressed([] {
-      useTarget=true;
-      setLiftTarget(B);
+    Controller1.ButtonB.pressed([]() {
+      Lift::setLiftTarget(Lift::B);
     });
-    Controller1.ButtonX.pressed([] {
-      useTarget=true;
-      setLiftTarget(C);
+    Controller1.ButtonX.pressed([]() {
+      Lift::setLiftTarget(Lift::C);
     });
-    Controller1.ButtonY.pressed([] {
-      useTarget=true;
-      setLiftTarget(D);
+    Controller1.ButtonY.pressed([]() {
+      Lift::setLiftTarget(Lift::D);
     });
-    Controller1.ButtonUp.pressed([] {
-      useTarget=true;
-      setLiftTarget(E);
+    Controller1.ButtonUp.pressed([]() {
+      Lift::setLiftTarget(Lift::E);
     });
-    Controller1.ButtonDown.pressed([] {
-      useTarget=true;
-      setLiftTarget(F);
+    Controller1.ButtonDown.pressed([]() {
+      Lift::setLiftTarget(Lift::F);
     });
-    if (Controller1.ButtonL2.pressing()) {
-      Lift.spin(reverse, 85, percent);
-      useTarget=false;
-    } else if (Controller1.ButtonL1.pressing()) {
-      Lift.spin(forward, 65, percent);
-      useTarget=false;
-    } else {
-      if (!useTarget)
-        Lift.stop(hold);
-    }
+    
+    Lift::handleControllerInput(
+      Controller1.ButtonL2.pressing(),
+      Controller1.ButtonL1.pressing()
+    );
+
     // Controller1.ButtonDown.pressed([]{
     //   if (matchloading == false){
     //     matchloading = true;
@@ -285,17 +234,10 @@ void usercontrol(void) {
     //   Scoring.spin(reverse, 85, percent); 
     // }
 
-    // if(useTarget){
-    //         // Lift.spin(forward, liftPower * liftDir, percent);
-    //       if(liftPower<5&&liftPower>-5){
-    //         Lift.stop(hold);
-    //       }else{
-    //   Lift.spin(forward, liftPower, percent);
-    //       }
-    // }
-    Controller1.ButtonLeft.pressed([] {
-      LiftRot.resetPosition();
-    });
+    // TODO: Implement.
+    // Controller1.ButtonLeft.pressed([] {
+    //   LiftRot.resetPosition();
+    // });
 
     // check the ButtonR1/ButtonR2 status to control Scoring
     if (Controller1.ButtonR1.pressing()) {
