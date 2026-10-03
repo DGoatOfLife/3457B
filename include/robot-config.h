@@ -24,6 +24,15 @@ extern double G;
 
 // Add your devices below, and don't forget to do the same in robot-config.cpp:
 
+
+
+extern motor leftMotorA;
+extern motor leftMotorB;
+extern motor rightMotorA;
+extern motor rightMotorB;
+extern motor Preload;
+extern motor ScoringMotorA;
+extern motor ScoringMotorB;
 extern motor_group Scoring;
 
 void setLiftTarget(double target);

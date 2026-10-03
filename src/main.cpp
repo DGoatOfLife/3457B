@@ -14,15 +14,6 @@ controller Controller1 = controller(primary);
 /*  already have configured your motors.                                     */
 /*---------------------------------------------------------------------------*/
 
-motor leftMotorA = motor(PORT10, ratio6_1, true);
-motor leftMotorB = motor(PORT11, ratio6_1, true);
-motor rightMotorA = motor(PORT3, ratio6_1, true);
-motor rightMotorB = motor(PORT20, ratio6_1, false);
-
-motor ScoringMotorA = motor(PORT21, ratio6_1, true);
-motor ScoringMotorB = motor(PORT19, ratio6_1, false);
-motor_group Scoring = motor_group(ScoringMotorA, ScoringMotorB);
-
 // TODO: Fix.
 bool matchloading = false;
 
@@ -41,7 +32,7 @@ Drive chassis(
 //HOLONOMIC_TWO_ROTATION
 //
 //Write it here:
-ZERO_TRACKER_NO_ODOM,
+ZERO_TRACKER_ODOM,
 
 //Add the names of your Drive motors into the motor groups below, separated by commas, i.e. motor_group(Motor1,Motor2,Motor3).
 //You will input whatever motor names you chose when you configured your robot using the sidebar configurer, they don't have to be "Motor1" and "Motor2".
@@ -61,7 +52,7 @@ PORT18,
 //External ratio, must be in decimal, in the format of input teeth/output teeth.
 //If your motor has an 84-tooth gear and your wheel has a 60-tooth gear, this value will be 1.4.
 //If the motor drives the wheel directly, this value is 1:
-0.6,
+0.9,
 
 //Gyro scale, this is what your gyro reads when you spin the robot 360 degrees.
 //For most cases 360 will do fine here, but this scale factor can be very helpful when precision is necessary.
@@ -95,10 +86,11 @@ PORT3,     -PORT4,
 //Input Forward Tracker center distance (a positive distance corresponds to a tracker on the right side of the robot, negative is left.)
 //For a zero tracker tank drive with odom, put the positive distance from the center of the robot to the right side of the drive.
 //This distance is in inches:
--2,
+// 6, -> just to center of wheels
+7.5, // to right side of dt
 
 //Input the Sideways Tracker Port, following the same steps as the Forward Tracker Port:
-1,
+3,
 
 //Sideways tracker diameter (reverse to make the direction switch):
 -2.75,
@@ -118,7 +110,8 @@ PORT3,     -PORT4,
 void pre_auton() {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
-  default_constants();
+  odom_constants();
+  chassis.Gyro.calibrate();
 }
 
 /**
@@ -128,8 +121,44 @@ void pre_auton() {
  * autons.cpp and declared in autons.h.
  */
 
-void autonomous(void) {
-  Blue_Left();
+void printCoords() {
+  chassis.set_coordinates(0, 0, 0);
+
+  // calibrate gyro
+  chassis.Gyro.calibrate();
+  while (true) {
+    Brain.Screen.clearScreen();
+    if (chassis.Gyro.isCalibrating()) {
+      Brain.Screen.setCursor(1, 1);
+      Brain.Screen.print("Calibrating gyro...");
+    } else {
+      break;
+    }
+    
+    vex::wait(20, msec);
+  }
+
+  while (true) {
+    double x = chassis.get_X_position();
+    double y = chassis.get_Y_position();
+    double l_pos = chassis.DriveL.position(vex::deg);
+    double r_pos = chassis.DriveR.position(vex::deg);
+
+    Brain.Screen.clearScreen();
+    Brain.Screen.setCursor(1, 1);
+    Brain.Screen.print("x: %.2f", x);
+    Brain.Screen.setCursor(2, 1);
+    Brain.Screen.print("y: %.2f", y);
+    Brain.Screen.setCursor(3, 1);
+    Brain.Screen.print("l: %.2f", l_pos);
+    Brain.Screen.setCursor(4, 1);
+    Brain.Screen.print("r: %.2f", r_pos);
+    vex::wait(20, msec);
+  }
+}
+
+void autonomous() {
+  Seft();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -143,56 +172,18 @@ void autonomous(void) {
 /*---------------------------------------------------------------------------*/
 
 void usercontrol(void) {
+  // vexcodeInit();
+  // default_constants();
+
+  // printCoords();
+
+  // -------------------------------
+
   // LiftRot.resetPosition();
 
-  // User control code here, inside the loop
   vexcodeInit();
   default_constants();
   while (1) {
-    // This is the main execution loop for the user control program.
-    // Each time through the loop your program should update motor + servo
-    // values based on feedback from the joysticks.
-
-    // if (Controller1.ButtonL1.pressing()) {
-    //   Lift.spin(forward, 45, percent); // UP
-    // } else if (Controller1.ButtonL2.pressing()) {
-    //   Lift.spin(reverse, 100, percent); // DOWN
-    // } else {
-    //   Lift.stop(hold);
-    // }
-
-    // // LIFT dynamic control
-    // double currentPos = LiftRot.position(rev);
-
-    // double liftError = currentPos - liftTarget;
-    // double liftPower = -liftPID.compute(liftError) * 100;//* 30
-
-    // Brain.Screen.clearScreen();
-    // Brain.Screen.setCursor(1,1);
-    // Brain.Screen.print("Lift Power: %f", liftPower);
-    // Brain.Screen.setCursor(2,1);
-    // Brain.Screen.print("currentPos: %f", currentPos);
-    // Brain.Screen.setCursor(3,1);
-    // Brain.Screen.print("liftTarget:%f",liftTarget);
-
-    // double liftDir = (liftError > 0) ? -1 : 1;
-    // liftError = abs(liftError);
-
-    // double liftPower;
-
-    // if (liftError > 5) {
-    //   liftPower = 75;
-    // }
-    // if (5 >= liftError > 2) {
-    //   liftPower = 42.5;
-    // }
-    // if (2 >= liftError > 1) {
-    //   liftPower = 22.5;
-    // }
-    // if (1 >= liftError > 0.5) {
-    //   liftPower = 15;
-    // }
-
     // Adjust LIFT TARGETS
     Controller1.ButtonA.pressed([]() {
       Lift::setLiftTarget(Lift::A);
@@ -240,12 +231,12 @@ void usercontrol(void) {
     // });
 
     // check the ButtonR1/ButtonR2 status to control Scoring
-    if (Controller1.ButtonR1.pressing()) {
+    if (Controller1.ButtonL1.pressing()) {
       Scoring.spin(forward, 100, percent);
-    } else if (Controller1.ButtonR2.pressing()) {
+    } else if (Controller1.ButtonL2.pressing()) {
       Scoring.spin(reverse,100, percent);
     } else {
-      Scoring.spin(reverse,8.5, percent);
+      Scoring.spin(reverse,4.5, percent);
     }
 
     // // check the ButtonX/ButtonB status to control Toggle
@@ -259,7 +250,7 @@ void usercontrol(void) {
 
     //Replace this line with chassis.control_tank(); for tank drive 
     //or chassis.control_holonomic(); for holo drive.
-    chassis.control_tank();
+    chassis.control_arcade();
 
     wait(20, msec); // Sleep the task for a short amount of time to
                     // prevent wasted resources.
